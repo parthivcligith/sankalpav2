@@ -53,7 +53,7 @@ export default function HeroSection() {
         <div
           className="w-full h-full bg-cover bg-center bg-no-repeat animate-ken-burns"
           style={{
-            backgroundImage: `url('/images/wooden-house-hero.jpeg')`,
+            backgroundImage: `url('/images/3d-rendering-dining-set-modern-luxury-dining-room.jpg')`,
           }}
         />
         <div className="absolute inset-0 bg-slate-900/70" />
