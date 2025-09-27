@@ -1,4 +1,3 @@
-
 import Preloader from "@/components/preloader"
 import Navigation from "@/components/navigation"
 import HeroSection from "@/components/hero-section"
@@ -11,8 +10,7 @@ import Footer from "@/components/footer"
 
 export default function Home() {
   return (
-
-
+    <div className="relative overflow-x-hidden">
       {/* Content wrapper – MUST have higher z-index */}
       <div className="relative z-[999]">
         <Preloader />
@@ -30,4 +28,3 @@ export default function Home() {
     </div>
   )
 }
-
