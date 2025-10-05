@@ -3,7 +3,6 @@ import type { Metadata } from "next"
 import { DM_Sans } from "next/font/google"
 import "./globals.css"
 
-
 const dmSans = DM_Sans({
   subsets: ["latin"],
   display: "swap",
@@ -16,7 +15,12 @@ export const metadata: Metadata = {
     "Professional construction company in Ernakulam, Kerala. Innovative construction solutions that stand the test of time.",
   generator: "v0.app",
   icons: {
-    icon: [{ url: "/favicon.ico" }, { url: "/favicon.png", type: "image/png" }],
+    icon: [
+      { url: "/logo-transparent.png", type: "image/png" },
+      { url: "/logo-transparent.png", sizes: "32x32", type: "image/png" },
+      { url: "/logo-transparent.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: [{ url: "/logo-transparent.png", sizes: "180x180", type: "image/png" }],
   },
 }
 
