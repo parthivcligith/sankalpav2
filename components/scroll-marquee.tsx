@@ -21,6 +21,7 @@ import {
 export default function ScrollMarquee() {
   const marqueeRef = useRef<HTMLDivElement>(null)
   const [scrollY, setScrollY] = useState(0)
+  const [isMobile, setIsMobile] = useState(false)
 
   const marqueeItems = [
     { text: "CPWD & PWD Enlisted", icon: Building2 },
@@ -44,9 +45,22 @@ export default function ScrollMarquee() {
       setScrollY(window.scrollY)
     }
 
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    handleResize()
+
     window.addEventListener("scroll", handleScroll, { passive: true })
-    return () => window.removeEventListener("scroll", handleScroll)
+    window.addEventListener("resize", handleResize, { passive: true })
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      window.removeEventListener("resize", handleResize)
+    }
   }, [])
+
+  const animationDuration = isMobile ? "20s" : "40s"
 
   return (
     <div className="relative overflow-hidden bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 py-3 border-y border-[#C9A961]/20">
@@ -59,7 +73,7 @@ export default function ScrollMarquee() {
         className="flex whitespace-nowrap"
         style={{
           transform: `translateX(${-scrollY * 0.3}px)`,
-          animation: "marquee 80s linear infinite",
+          animation: `marquee ${animationDuration} linear infinite`,
           transition: "transform 0.1s ease-out",
         }}
       >
