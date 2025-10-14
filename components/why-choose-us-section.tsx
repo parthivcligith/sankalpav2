@@ -96,11 +96,8 @@ export default function WhyChooseUsSection() {
     "CPWD Enlisted Contractor",
     "PWD Enlisted Contractor",
     "Licensed Contractor",
-    "ISO 9001:2015 Certified",
-    "Green Building Certified",
     "Safety Standards Compliant",
     "Government Approved",
-    "Insurance Coverage",
   ]
 
   return (
@@ -198,6 +195,7 @@ export default function WhyChooseUsSection() {
 
         {/* Certifications and Trust Signals */}
         <div
+          id="certified-and-trusted"
           className={`bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-500 ${
             isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
           }`}

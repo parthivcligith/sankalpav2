@@ -25,7 +25,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# .gitignore
-*.exe
-public/images/CursorSetup-x64-1.6.45.exe 

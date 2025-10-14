@@ -66,13 +66,13 @@ Looking forward to hearing from you!`
     {
       icon: Phone,
       title: "Call Us",
-      details: ["+91 9947004671", "+91 9876543211"],
+      details: ["+91 9947004671", "9961093847", "0484 2443671"],
       description: "Mon - Sat: 9:00 AM - 6:00 PM",
     },
     {
       icon: Mail,
       title: "Email Us",
-      details: ["info@sankalpabuilders.com", "projects@sankalpabuilders.com"],
+      details: ["info@sankalpabuilders.com"],
       description: "We'll respond within 24 hours",
     },
     {

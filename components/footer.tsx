@@ -174,8 +174,6 @@ export default function Footer() {
               <h5 className="text-md font-semibold mb-4">Certifications</h5>
               <div className="space-y-2 text-xs text-slate-400">
                 <p>✓ Licensed Contractor</p>
-                <p>✓ ISO 9001:2015 Certified</p>
-                <p>✓ Green Building Certified</p>
                 <p>✓ Government Approved</p>
               </div>
             </div>
