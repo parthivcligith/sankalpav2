@@ -10,8 +10,36 @@ import WhyChooseUsSection from "@/components/why-choose-us-section"
 import ContactSection from "@/components/contact-section"
 import Footer from "@/components/footer"
 
+
+export const metadata = {
+  title: "Sankalpa Builders - Building Dreams, One Project at a Time",
+  description:
+    "Founded in 2008, Sankalpa Builders has grown into one of Kerala's most trusted construction companies, based in Ernakulam.",
+  alternates: {
+    canonical: "https://www.sankalpabuilders.com/",
+  },
+  icons: {
+    icon: "/favicon.ico",
+  },
+  openGraph: {
+    title: "Sankalpa Builders",
+    url: "https://www.sankalpabuilders.com/",
+    images: [
+      {
+        url: "/favicon.ico",
+        width: 32,
+        height: 32,
+        alt: "Sankalpa Builders logo",
+      },
+    ],
+  },
+};
+
+
+
 export default function Home() {
   return (
+    
     <div className="relative overflow-x-hidden">
       {/* Background animation */}
       <MeshBackground />
