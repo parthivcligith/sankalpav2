@@ -3,10 +3,21 @@
 import { Card } from "@/components/ui/card"
 import { Building2, Building, Wrench, Landmark } from "lucide-react"
 import { useState, useEffect } from "react"
+import { getServices } from "@/app/actions/section-actions"
+
+// Icon mapping
+const iconMap: Record<string, any> = {
+  Building2,
+  Building,
+  Wrench,
+  Landmark,
+}
 
 export default function ServicesSection() {
   const [isVisible, setIsVisible] = useState(false)
   const [particles, setParticles] = useState<Array<{ left: string; top: string; delay: string; duration: string }>>([])
+  const [servicesData, setServicesData] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -34,7 +45,25 @@ export default function ServicesSection() {
     setParticles(generatedParticles)
   }, [])
 
-  const services = [
+  // Fetch services from database
+  useEffect(() => {
+    async function fetchServices() {
+      try {
+        const result = await getServices()
+        if (result.data) {
+          setServicesData(result.data)
+        }
+      } catch (error) {
+        console.error('Error fetching services:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchServices()
+  }, [])
+
+  // Default services fallback
+  const defaultServices = [
     {
       icon: Building2,
       title: "Residential Buildings",
@@ -64,6 +93,17 @@ export default function ServicesSection() {
       features: ["Educational Institutions", "Government Offices", "Public Infrastructure", "Community Centers"],
     },
   ]
+
+  const services = servicesData.length > 0
+    ? servicesData.map((service) => ({
+        icon: iconMap[service.icon_name] || Building2,
+        title: service.title,
+        description: service.description,
+        features: service.service_features
+          ?.map((f: any) => f.feature_text)
+          .sort((a: any, b: any) => a.order_index - b.order_index) || [],
+      }))
+    : defaultServices
 
   return (
     <section id="services" className="py-20 relative overflow-hidden animate-gradient-shift">

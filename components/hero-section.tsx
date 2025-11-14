@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Play, MessageCircle } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
+import { getHeroSection } from "@/app/actions/section-actions"
 
 export default function HeroSection() {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
@@ -10,14 +11,47 @@ export default function HeroSection() {
   const [currentTextIndex, setCurrentTextIndex] = useState(0)
   const [visibleStats, setVisibleStats] = useState<boolean[]>([false, false, false, false])
   const statsRef = useRef<(HTMLDivElement | null)[]>([])
+  const [heroData, setHeroData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
-  const rotatingTexts = [
+  // Default fallback data
+  const defaultRotatingTexts = [
     "We are proud to be a CPWD & PWD enlisted contractor",
     "Building landmarks that last a lifetime since 2008",
     "100+ Projects Completed with Excellence",
     "Trusted builders for homes, offices, and complexes",
     "100% Client Satisfaction Guaranteed",
   ]
+
+  // Fetch hero data from database
+  useEffect(() => {
+    async function fetchHeroData() {
+      try {
+        const result = await getHeroSection()
+        console.log('Hero fetch result:', result)
+        if (result.data) {
+          console.log('Hero data loaded:', result.data)
+          console.log('Background image URL:', result.data.background_image_url)
+          setHeroData(result.data)
+        } else {
+          console.warn('No hero data returned. Error:', result.error)
+          console.warn('Result object:', result)
+        }
+      } catch (error) {
+        console.error('Error fetching hero section:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchHeroData()
+  }, [])
+
+  const rotatingTexts = heroData?.hero_rotating_texts?.length > 0
+    ? heroData.hero_rotating_texts
+        .filter((t: any) => t.text && t.text.trim() !== '')
+        .sort((a: any, b: any) => (a.order_index || 0) - (b.order_index || 0))
+        .map((t: any) => t.text)
+    : defaultRotatingTexts
 
   useEffect(() => {
     setIsLoaded(true)
@@ -65,7 +99,8 @@ export default function HeroSection() {
   const handleContactUs = () => {
     const message =
       "Hello Sankalpa Builders! I'm interested in your construction services and would like to discuss my project requirements."
-    const whatsappUrl = `https://wa.me/919947004671?text=${encodeURIComponent(message)}`
+    const whatsappNumber = heroData?.whatsapp_number || '919947004671'
+    const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, "_blank")
   }
 
@@ -86,7 +121,7 @@ export default function HeroSection() {
         <div
           className="w-full h-full bg-cover bg-center bg-no-repeat animate-ken-burns"
           style={{
-            backgroundImage: `url('/images/3d-rendering-dining-set-modern-luxury-dining-room.jpg')`,
+            backgroundImage: `url('${heroData?.background_image_url || '/images/hero-background.jpg.jpg'}')`,
           }}
         />
         <div className="absolute inset-0 bg-slate-900/70" />
@@ -102,38 +137,49 @@ export default function HeroSection() {
                 key={currentTextIndex}
                 className="font-semibold text-xs sm:text-sm lg:text-base animate-fade-in-up text-white"
               >
-                {rotatingTexts[currentTextIndex]}
+                {rotatingTexts[currentTextIndex] || defaultRotatingTexts[currentTextIndex]}
               </span>
             </div>
           </div>
 
           {/* Main Headline */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-5 md:mb-6 leading-tight px-2">
-            <span
-              className="inline-block animate-slide-in-left opacity-0"
-              style={{ animationDelay: "0.2s", animationFillMode: "forwards" }}
-            >
-              We
-            </span>{" "}
-            <span
-              className="inline-block animate-slide-in-right opacity-0"
-              style={{ animationDelay: "0.4s", animationFillMode: "forwards" }}
-            >
-              Build
-            </span>
-            <br className="hidden sm:block" />
-            <span
-              className="inline-block animate-fade-in-up opacity-0"
-              style={{ animationDelay: "0.6s", animationFillMode: "forwards" }}
-            >
-              <span className="animate-gradient-text text-white">Landmarks</span>
-            </span>{" "}
-            <span
-              className="inline-block animate-slide-in-left opacity-0 drop-shadow-lg"
-              style={{ animationDelay: "0.8s", animationFillMode: "forwards" }}
-            >
-              That Last a Lifetime
-            </span>
+            {heroData?.title ? (
+              <span
+                className="inline-block animate-fade-in-up opacity-0"
+                style={{ animationDelay: "0.2s", animationFillMode: "forwards" }}
+              >
+                {heroData.title}
+              </span>
+            ) : (
+              <>
+                <span
+                  className="inline-block animate-slide-in-left opacity-0"
+                  style={{ animationDelay: "0.2s", animationFillMode: "forwards" }}
+                >
+                  We
+                </span>{" "}
+                <span
+                  className="inline-block animate-slide-in-right opacity-0"
+                  style={{ animationDelay: "0.4s", animationFillMode: "forwards" }}
+                >
+                  Build
+                </span>
+                <br className="hidden sm:block" />
+                <span
+                  className="inline-block animate-fade-in-up opacity-0"
+                  style={{ animationDelay: "0.6s", animationFillMode: "forwards" }}
+                >
+                  <span className="animate-gradient-text text-white">Landmarks</span>
+                </span>{" "}
+                <span
+                  className="inline-block animate-slide-in-left opacity-0 drop-shadow-lg"
+                  style={{ animationDelay: "0.8s", animationFillMode: "forwards" }}
+                >
+                  That Last a Lifetime
+                </span>
+              </>
+            )}
           </h1>
 
           {/* Description */}
@@ -141,9 +187,7 @@ export default function HeroSection() {
             className="text-sm sm:text-base md:text-lg lg:text-xl text-white mb-6 sm:mb-7 md:mb-8 max-w-4xl mx-auto leading-relaxed px-4 sm:px-6 animate-fade-in-up opacity-0"
             style={{ animationDelay: "1s", animationFillMode: "forwards" }}
           >
-            We deliver projects that stand the test of time.
-            <br className="hidden sm:block" />
-            Trusted builders for homes, offices, and complexes - residential, commercial, and government projects.
+            {heroData?.description || 'We deliver projects that stand the test of time. Trusted builders for homes, offices, and complexes - residential, commercial, and government projects.'}
           </p>
 
           {/* Buttons */}
@@ -156,7 +200,7 @@ export default function HeroSection() {
               className="w-full sm:w-auto bg-[#C9A961] hover:bg-slate-900 text-slate-900 border-2 border-[#C9A961] px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base lg:text-lg font-semibold group transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-[#C9A961]/30 hover:text-white"
               onClick={handleExploreProjects}
             >
-              Explore Our Projects
+              {heroData?.cta_primary_text || 'Explore Our Projects'}
               <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-2 transition-transform duration-300" />
             </Button>
 
@@ -167,7 +211,7 @@ export default function HeroSection() {
               onClick={handleContactUs}
             >
               <MessageCircle className="mr-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:scale-125 transition-transform duration-300" />
-              Contact Us
+              {heroData?.cta_secondary_text || 'Contact Us'}
             </Button>
           </div>
 
@@ -188,7 +232,7 @@ export default function HeroSection() {
                   visibleStats[0] ? "text-[#C9A961]" : "text-white"
                 } md:text-white`}
               >
-                100+
+                {heroData?.stats_projects_completed || '100+'}
               </div>
               <div
                 className={`text-xs sm:text-sm md:text-base animate-fade-in transition-colors duration-500 md:group-hover:text-[#E5D4A6] ${
@@ -210,7 +254,7 @@ export default function HeroSection() {
                   visibleStats[1] ? "text-[#C9A961]" : "text-white"
                 } md:text-white`}
               >
-                16+
+                {heroData?.stats_years || '16+'}
               </div>
               <div
                 className={`text-xs sm:text-sm md:text-base animate-fade-in transition-colors duration-500 md:group-hover:text-[#E5D4A6] ${
@@ -232,7 +276,7 @@ export default function HeroSection() {
                   visibleStats[2] ? "text-[#C9A961]" : "text-white"
                 } md:text-white`}
               >
-                1M+
+                {heroData?.stats_area_built || '1M+'}
               </div>
               <div
                 className={`text-xs sm:text-sm md:text-base animate-fade-in transition-colors duration-500 md:group-hover:text-[#E5D4A6] ${
@@ -254,7 +298,7 @@ export default function HeroSection() {
                   visibleStats[3] ? "text-[#C9A961]" : "text-white"
                 } md:text-white`}
               >
-                100%
+                {heroData?.stats_satisfaction || '100%'}
               </div>
               <div
                 className={`text-xs sm:text-sm md:text-base animate-fade-in transition-colors duration-500 md:group-hover:text-[#E5D4A6] ${

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import AdminSidebar from '@/components/admin/admin-sidebar'
+import AdminNavbar from '@/components/admin/admin-sidebar'
 
 export default async function AdminLayout({
   children,
@@ -13,15 +13,13 @@ export default async function AdminLayout({
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/admin/login')
+    redirect('/login')
   }
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <div className="flex">
-        <AdminSidebar />
-        <main className="flex-1 p-8">{children}</main>
-      </div>
+      <AdminNavbar />
+      <main className="pt-16 p-4 lg:p-8">{children}</main>
     </div>
   )
 }

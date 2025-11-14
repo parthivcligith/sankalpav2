@@ -5,11 +5,14 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Building2, Users, Award, ChevronDown, ChevronUp } from "lucide-react"
+import { getProjects } from "@/app/actions/project-actions"
 
 export default function ProjectsSection() {
   const [activeFilter, setActiveFilter] = useState("all")
   const [isVisible, setIsVisible] = useState(false)
   const [visibleCount, setVisibleCount] = useState(9)
+  const [projects, setProjects] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -31,6 +34,33 @@ export default function ProjectsSection() {
     setVisibleCount(9)
   }, [activeFilter])
 
+  // Fetch projects from database
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const result = await getProjects()
+        if (result.data) {
+          setProjects(result.data)
+        }
+      } catch (error) {
+        console.error('Error fetching projects:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProjects()
+  }, [])
+
+  // Map category names to slugs for filtering
+  const categorySlugMap: Record<string, string> = {
+    'Villas': 'villas',
+    'Government Schools & Other Commercial Buildings': 'government',
+    'Co-operative Banks': 'banks',
+    'Auditorium': 'auditorium',
+    'Commercial Buildings': 'commercial',
+    'Village Offices': 'village-offices',
+  }
+
   const projectCategories = [
     { id: "all", name: "All Projects", icon: Building2 },
     { id: "villas", name: "Villas", icon: Users },
@@ -41,230 +71,50 @@ export default function ProjectsSection() {
     { id: "village-offices", name: "Village Offices", icon: Award },
   ]
 
-  const featuredProjects = [
-    {
-      id: 1,
-      title: "Sankalpa Villas",
-      category: "villas",
-      year: "2015",
-      description: "Luxury residential villa complex with modern amenities and sustainable design.",
-      features: ["Modern Architecture", "Eco-Friendly", "Premium Finishes"],
-      specs: { area: "2500 sq ft", units: "12 Villas", duration: "18 months" },
-    },
-    {
-      id: 2,
-      title: "Village Office Building",
-      category: "village-offices",
-      year: "2021",
-      description: "State-of-the-art village office building with modern facilities and accessibility features.",
-      features: ["Government Standards", "Accessible Design", "Energy Efficient"],
-      specs: { area: "3200 sq ft", floors: "2 Floors", duration: "14 months" },
-    },
-    {
-      id: 3,
-      title: "Co-operative Bank",
-      category: "banks",
-      year: "2012",
-      description: "Modern banking facility with secure infrastructure and customer-friendly design.",
-      features: ["Security Systems", "Modern Banking", "Customer Comfort"],
-      specs: { area: "1800 sq ft", floors: "1 Floor", duration: "10 months" },
-    },
-    {
-      id: 4,
-      title: "Government School",
-      category: "government",
-      year: "2013",
-      description: "Educational facility designed to provide optimal learning environment for students.",
-      features: ["Student-Centric Design", "Safety Standards", "Modern Classrooms"],
-      specs: { area: "2800 sq ft", classrooms: "8 Rooms", duration: "12 months" },
-    },
-    {
-      id: 5,
-      title: "Community Hall & Auditorium",
-      category: "auditorium",
-      year: "2022",
-      description: "Multi-purpose community hall for cultural and social events with modern acoustics.",
-      features: ["Acoustic Design", "Multi-Purpose", "Cultural Events"],
-      specs: { area: "4000 sq ft", capacity: "300 People", duration: "16 months" },
-    },
-    {
-      id: 6,
-      title: "Smart Village Office",
-      category: "village-offices",
-      year: "2021",
-      description: "Digital-ready village office with smart infrastructure and modern amenities.",
-      features: ["Smart Infrastructure", "Digital Ready", "Modern Amenities"],
-      specs: { area: "1200 sq ft", floors: "1 Floor", duration: "8 months" },
-    },
-    {
-      id: 7,
-      title: "Modern Commercial Complex",
-      category: "commercial",
-      year: "2020",
-      description: "Contemporary commercial building with retail spaces and office facilities.",
-      features: ["Modern Design", "Retail Spaces", "Office Facilities"],
-      specs: { area: "5000 sq ft", floors: "3 Floors", duration: "20 months" },
-    },
-    {
-      id: 8,
-      title: "Residential Villa Project",
-      category: "villas",
-      year: "2019",
-      description: "Premium villa development with landscaped gardens and modern amenities.",
-      features: ["Landscaped Gardens", "Premium Finishes", "Modern Amenities"],
-      specs: { area: "3000 sq ft", units: "8 Villas", duration: "15 months" },
-    },
-    {
-      id: 9,
-      title: "Lakeside Villas",
-      category: "villas",
-      year: "2018",
-      description: "Exclusive waterfront villa community with scenic views and luxury amenities.",
-      features: ["Waterfront Location", "Luxury Interiors", "Gated Community"],
-      specs: { area: "3500 sq ft", units: "6 Villas", duration: "16 months" },
-    },
-    {
-      id: 10,
-      title: "Heritage Villas",
-      category: "villas",
-      year: "2017",
-      description: "Traditional Kerala-style villas with modern comforts and heritage architecture.",
-      features: ["Heritage Design", "Traditional Architecture", "Modern Amenities"],
-      specs: { area: "2800 sq ft", units: "10 Villas", duration: "14 months" },
-    },
-    {
-      id: 11,
-      title: "Green Valley Villas",
-      category: "villas",
-      year: "2016",
-      description: "Eco-friendly villa project surrounded by lush greenery and natural landscapes.",
-      features: ["Eco-Friendly", "Natural Setting", "Sustainable Design"],
-      specs: { area: "2200 sq ft", units: "15 Villas", duration: "17 months" },
-    },
-    {
-      id: 12,
-      title: "District Co-operative Bank",
-      category: "banks",
-      year: "2014",
-      description: "Spacious banking facility with modern security systems and customer service areas.",
-      features: ["Advanced Security", "Customer Service", "Modern Infrastructure"],
-      specs: { area: "2200 sq ft", floors: "2 Floors", duration: "12 months" },
-    },
-    {
-      id: 13,
-      title: "Urban Co-operative Bank",
-      category: "banks",
-      year: "2016",
-      description: "Contemporary bank building with digital banking facilities and secure vaults.",
-      features: ["Digital Banking", "Secure Vaults", "Modern Design"],
-      specs: { area: "2500 sq ft", floors: "2 Floors", duration: "13 months" },
-    },
-    {
-      id: 14,
-      title: "Government Higher Secondary School",
-      category: "government",
-      year: "2015",
-      description: "Comprehensive educational facility with science labs, library, and sports facilities.",
-      features: ["Science Labs", "Library", "Sports Facilities"],
-      specs: { area: "4500 sq ft", classrooms: "15 Rooms", duration: "18 months" },
-    },
-    {
-      id: 15,
-      title: "Government Primary School",
-      category: "government",
-      year: "2014",
-      description: "Child-friendly school building with colorful classrooms and play areas.",
-      features: ["Child-Friendly Design", "Play Areas", "Safety Features"],
-      specs: { area: "2000 sq ft", classrooms: "6 Rooms", duration: "10 months" },
-    },
-    {
-      id: 16,
-      title: "Government Vocational Training Center",
-      category: "government",
-      year: "2019",
-      description: "Modern training facility with workshops and skill development centers.",
-      features: ["Workshop Spaces", "Skill Development", "Modern Equipment"],
-      specs: { area: "3500 sq ft", workshops: "8 Units", duration: "15 months" },
-    },
-    {
-      id: 17,
-      title: "Cultural Center Auditorium",
-      category: "auditorium",
-      year: "2020",
-      description: "State-of-the-art auditorium for cultural performances with advanced sound and lighting.",
-      features: ["Advanced Acoustics", "Stage Lighting", "Cultural Events"],
-      specs: { area: "5000 sq ft", capacity: "500 People", duration: "18 months" },
-    },
-    {
-      id: 18,
-      title: "Convention Center",
-      category: "auditorium",
-      year: "2018",
-      description: "Multi-purpose convention center for conferences, weddings, and large gatherings.",
-      features: ["Multi-Purpose", "Conference Facilities", "Banquet Hall"],
-      specs: { area: "6000 sq ft", capacity: "800 People", duration: "20 months" },
-    },
-    {
-      id: 19,
-      title: "Business Park Complex",
-      category: "commercial",
-      year: "2021",
-      description: "Modern business park with office spaces, parking, and amenities for corporate tenants.",
-      features: ["Office Spaces", "Parking Facilities", "Corporate Amenities"],
-      specs: { area: "8000 sq ft", floors: "4 Floors", duration: "24 months" },
-    },
-    {
-      id: 20,
-      title: "Retail Shopping Complex",
-      category: "commercial",
-      year: "2019",
-      description: "Contemporary shopping complex with retail outlets and food court facilities.",
-      features: ["Retail Outlets", "Food Court", "Modern Design"],
-      specs: { area: "6500 sq ft", floors: "3 Floors", duration: "22 months" },
-    },
-    {
-      id: 21,
-      title: "Hospital",
-      category: "commercial",
-      year: "2017",
-      description: "Healthcare facility with consultation rooms, diagnostic center, and pharmacy.",
-      features: ["Healthcare Design", "Diagnostic Center", "Patient Comfort"],
-      specs: { area: "4000 sq ft", floors: "2 Floors", duration: "16 months" },
-    },
-    {
-      id: 22,
-      title: "Grama Village Office",
-      category: "village-offices",
-      year: "2020",
-      description: "Modern village office with digital facilities and public service counters.",
-      features: ["Digital Facilities", "Public Service", "Modern Infrastructure"],
-      specs: { area: "2800 sq ft", floors: "2 Floors", duration: "12 months" },
-    },
-    {
-      id: 23,
-      title: "Block Village Office",
-      category: "village-offices",
-      year: "2019",
-      description: "Administrative building with meeting halls and office spaces for block administration.",
-      features: ["Meeting Halls", "Administrative Spaces", "Modern Amenities"],
-      specs: { area: "3500 sq ft", floors: "2 Floors", duration: "14 months" },
-    },
-    {
-      id: 24,
-      title: "Village Office",
-      category: "village-offices",
-      year: "2022",
-      description: "Standard village office with public service counters, accessibility, and digital amenities.",
-      features: ["Public Service Counters", "Accessible Design", "Digital Facilities"],
-      specs: { area: "2000 sq ft", floors: "1 Floor", duration: "10 months" },
-    },
-  ]
+  // Transform database projects to component format
+  const featuredProjects = projects.length > 0 ? projects.map((project) => {
+    const categoryName = project.project_categories?.name || ''
+    const categorySlug = categorySlugMap[categoryName] || 'all'
+    
+    // Build specs object from available fields
+    const specs: Record<string, string> = {}
+    if (project.area) specs.area = project.area
+    if (project.units) specs.units = project.units
+    if (project.floors) specs.floors = project.floors
+    if (project.classrooms) specs.classrooms = project.classrooms
+    if (project.capacity) specs.capacity = project.capacity
+    if (project.workshops) specs.workshops = project.workshops
+    if (project.duration) specs.duration = project.duration
+
+    return {
+      id: project.id,
+      title: project.title,
+      category: categorySlug,
+      categoryName: categoryName, // For display
+      year: project.year || '',
+      description: project.description || '',
+      features: project.project_features?.map((f: any) => f.feature_text) || [],
+      specs,
+    }
+  }) : []
 
   const filteredProjects =
     activeFilter === "all" ? featuredProjects : featuredProjects.filter((project) => project.category === activeFilter)
 
   const visibleProjects = filteredProjects.slice(0, visibleCount)
   const hasMore = visibleCount < filteredProjects.length
+
+  if (loading) {
+    return (
+      <section id="projects" className="py-20 bg-gradient-to-br from-slate-50 to-white relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <p className="text-slate-600">Loading projects...</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section id="projects" className="py-20 bg-gradient-to-br from-slate-50 to-white relative overflow-hidden">
@@ -359,7 +209,7 @@ export default function ProjectsSection() {
                     variant="outline"
                     className="text-xs animate-bounce-subtle group-hover:bg-yellow-100 transition-colors duration-300"
                   >
-                    {project.category}
+                    {project.categoryName || project.category}
                   </Badge>
                 </div>
 

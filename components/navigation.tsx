@@ -8,13 +8,18 @@ import Image from "next/image"
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
+    setIsMounted(true)
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50)
     }
 
-    window.addEventListener("scroll", handleScroll)
+    // Set initial scroll state
+    handleScroll()
+
+    window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
@@ -39,21 +44,21 @@ export default function Navigation() {
       <div className="bg-white/95 backdrop-blur-md border border-slate-200/50 rounded-2xl shadow-lg shadow-slate-900/10 animate-navbar-slide-down">
         <div className="px-4 sm:px-6 lg:px-8">
           <div
-            className={`flex justify-between items-center transition-all duration-300 ${isScrolled ? "h-16" : "h-20"}`}
+            className={`flex justify-between items-center transition-all duration-300 ${isMounted && isScrolled ? "h-16" : "h-20"}`}
           >
             <div className="flex items-center space-x-3 flex-shrink-0">
               <div className="flex-shrink-0">
                 <Image
                   src="/logo-transparent.png"
                   alt="Sankalpa Builders Logo"
-                  width={isScrolled ? 48 : 56}
-                  height={isScrolled ? 48 : 56}
+                  width={isMounted && isScrolled ? 48 : 56}
+                  height={isMounted && isScrolled ? 48 : 56}
                   className="transition-all duration-300"
                 />
               </div>
               <div className="block">
                 <span
-                  className={`font-bold text-slate-800 animate-fade-in transition-all duration-300 ${isScrolled ? "text-base" : "text-lg"}`}
+                  className={`font-bold text-slate-800 animate-fade-in transition-all duration-300 ${isMounted && isScrolled ? "text-base" : "text-lg"}`}
                 >
                   Sankalpa Builders
                 </span>

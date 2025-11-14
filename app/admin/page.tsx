@@ -1,17 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
 import { Card } from '@/components/ui/card'
-import { Building2, FileText, Image, Users, MessageSquare, Award } from 'lucide-react'
+import { Building2, FileText, Image } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
 
   // Get counts for dashboard stats
-  const [projectsResult, testimonialsResult, submissionsResult] = await Promise.all([
-    supabase.from('projects').select('id', { count: 'exact', head: true }),
-    supabase.from('testimonials').select('id', { count: 'exact', head: true }),
-    supabase.from('contact_submissions').select('id', { count: 'exact', head: true }),
-  ])
+  const projectsResult = await supabase.from('projects').select('id', { count: 'exact', head: true })
 
   const stats = [
     {
@@ -22,32 +18,12 @@ export default async function AdminDashboard() {
       color: 'text-[#C9A961]',
       bgColor: 'bg-[#C9A961]/10',
     },
-    {
-      title: 'Testimonials',
-      value: testimonialsResult.count || 0,
-      icon: Award,
-      href: '/admin/testimonials',
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
-    },
-    {
-      title: 'Contact Submissions',
-      value: submissionsResult.count || 0,
-      icon: MessageSquare,
-      href: '/admin/contact-submissions',
-      color: 'text-green-600',
-      bgColor: 'bg-green-100',
-    },
   ]
 
   const quickLinks = [
     { title: 'Hero Section', href: '/admin/hero', icon: Image },
     { title: 'About Section', href: '/admin/about', icon: FileText },
-    { title: 'Services', href: '/admin/services', icon: Building2 },
     { title: 'Projects', href: '/admin/projects', icon: Building2 },
-    { title: 'Why Choose Us', href: '/admin/why-choose-us', icon: Award },
-    { title: 'Contact Section', href: '/admin/contact', icon: MessageSquare },
-    { title: 'Footer', href: '/admin/footer', icon: FileText },
   ]
 
   return (

@@ -5,9 +5,20 @@ import { Card } from "@/components/ui/card"
 import { Award, Users, Clock, Target, Shield } from "lucide-react"
 import Image from "next/image"
 import { useState, useEffect } from "react"
+import { getAboutSection } from "@/app/actions/section-actions"
+
+// Icon mapping
+const iconMap: Record<string, any> = {
+  Award,
+  Users,
+  Clock,
+  Target,
+}
 
 export default function AboutSection() {
   const [isVisible, setIsVisible] = useState(false)
+  const [aboutData, setAboutData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -25,7 +36,25 @@ export default function AboutSection() {
     return () => observer.disconnect()
   }, [])
 
-  const achievements = [
+  // Fetch about data from database
+  useEffect(() => {
+    async function fetchAboutData() {
+      try {
+        const result = await getAboutSection()
+        if (result.data) {
+          setAboutData(result.data)
+        }
+      } catch (error) {
+        console.error('Error fetching about section:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchAboutData()
+  }, [])
+
+  // Default achievements fallback
+  const defaultAchievements = [
     {
       icon: Award,
       title: "Quality Excellence",
@@ -48,6 +77,25 @@ export default function AboutSection() {
     },
   ]
 
+  const achievements = aboutData?.about_achievements?.length > 0
+    ? aboutData.about_achievements
+        .map((a: any) => ({
+          icon: iconMap[a.icon_name] || Award,
+          title: a.title,
+          description: a.description,
+          order_index: a.order_index || 0,
+        }))
+        .sort((a: any, b: any) => a.order_index - b.order_index)
+    : defaultAchievements
+
+  const values = aboutData?.about_values?.length > 0
+    ? aboutData.about_values.sort((a: any, b: any) => (a.order_index || 0) - (b.order_index || 0))
+    : [
+        { letter: 'I', title: 'Integrity', description: 'We conduct business with honesty, transparency, and ethical practices in all our dealings.' },
+        { letter: 'Q', title: 'Quality', description: 'Excellence in craftsmanship and materials is non-negotiable in every project we undertake.' },
+        { letter: 'R', title: 'Reliability', description: 'Our clients can count on us to deliver on our promises, on time and within budget.' },
+      ]
+
   return (
     <section id="about" className="py-20 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -58,13 +106,13 @@ export default function AboutSection() {
           }`}
         >
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">
-            About{" "}
+            {aboutData?.title || 'About'} {" "}
             <span className="animate-gradient" style={{ color: "#D4AF37" }}>
               Sankalpa Builders
             </span>
           </h2>
           <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-            Building trust through excellence since 2008. We are more than builders - we are dream makers.
+            {aboutData?.subtitle || 'Building trust through excellence since 2008. We are more than builders - we are dream makers.'}
           </p>
         </div>
 
@@ -79,40 +127,30 @@ export default function AboutSection() {
             <div className="space-y-4">
               <h3 className="text-2xl md:text-3xl font-bold text-slate-900">Our Journey</h3>
               <p className="text-lg text-slate-600 leading-relaxed">
-                Founded in 2008, Sankalpa Builders has grown from a small construction company to one of Kerala's most
-                trusted builders. Based in Ernakulam, we have successfully completed over 100+ projects ranging from
-                residential complexes to government institutions.
+                {aboutData?.journey_text || "Founded in 2008, Sankalpa Builders has grown from a small construction company to one of Kerala's most trusted builders. Based in Ernakulam, we have successfully completed over 100+ projects ranging from residential complexes to government institutions."}
               </p>
-              <p className="text-lg text-slate-600 leading-relaxed">
-                Our commitment to quality, innovation, and customer satisfaction has earned us the trust of clients
-                across Kerala. From the construction of cooperative banks to educational institutions, from residential
-                villas to commercial complexes, we bring the same level of dedication to every project.
-              </p>
-              <div
-                className="p-4 rounded-lg"
-                style={{ backgroundColor: "#FFF4D6", borderColor: "#E8C547", borderWidth: "1px" }}
-              >
-                <div className="flex items-center space-x-2 mb-2">
-                  <Shield className="w-5 h-5" style={{ color: "#D4AF37" }} />
-                  <h4 className="text-lg font-semibold" style={{ color: "#B8941F" }}>
-                    Government Recognition
-                  </h4>
+              {aboutData?.recognition_title && (
+                <div
+                  className="p-4 rounded-lg"
+                  style={{ backgroundColor: "#FFF4D6", borderColor: "#E8C547", borderWidth: "1px" }}
+                >
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Shield className="w-5 h-5" style={{ color: "#D4AF37" }} />
+                    <h4 className="text-lg font-semibold" style={{ color: "#B8941F" }}>
+                      {aboutData.recognition_title}
+                    </h4>
+                  </div>
+                  <p className="text-sm leading-relaxed" style={{ color: "#8B7520" }}>
+                    {aboutData.recognition_text}
+                  </p>
                 </div>
-                <p className="text-sm leading-relaxed" style={{ color: "#8B7520" }}>
-                  We are proud to be a CPWD & PWD enlisted contractor, officially recognized by the Central Public Works
-                  Department and Public Works Department. This certification reflects our adherence to strict quality,
-                  safety, and compliance requirements, making us a reliable partner for both public sector and private
-                  developments.
-                </p>
-              </div>
+              )}
             </div>
 
             <div className="space-y-4">
               <h4 className="text-xl font-semibold text-slate-900">Our Mission</h4>
               <p className="text-slate-600 leading-relaxed">
-                To create lasting structures that not only meet but exceed our clients' expectations while contributing
-                positively to the communities we serve. We believe in building relationships as strong as the
-                foundations we lay.
+                {aboutData?.mission_text || "To create lasting structures that not only meet but exceed our clients' expectations while contributing positively to the communities we serve. We believe in building relationships as strong as the foundations we lay."}
               </p>
             </div>
 
@@ -134,7 +172,7 @@ export default function AboutSection() {
           >
             <div className="relative rounded-2xl overflow-hidden shadow-2xl hover:shadow-3xl transition-shadow duration-500 group">
               <Image
-                src="/images/modern-house.jpeg"
+                src={aboutData?.image_url || "/images/modern-house.jpeg"}
                 alt="Sankalpa Builders - Modern Construction Excellence"
                 width={800}
                 height={600}
@@ -147,7 +185,7 @@ export default function AboutSection() {
             <Card className="absolute -bottom-6 -left-6 bg-white p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 rounded-full">
               <div className="text-center">
                 <div className="text-3xl font-bold mb-1 animate-number-count" style={{ color: "#D4AF37" }}>
-                  17+
+                  {aboutData?.years_experience || '17+'}
                 </div>
                 <div className="text-sm text-slate-600">Years of Excellence</div>
               </div>
@@ -201,25 +239,7 @@ export default function AboutSection() {
         >
           <h3 className="text-2xl md:text-3xl font-bold text-slate-900 mb-8">Our Core Values</h3>
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {[
-              {
-                letter: "I",
-                title: "Integrity",
-                description:
-                  "We conduct business with honesty, transparency, and ethical practices in all our dealings.",
-              },
-              {
-                letter: "Q",
-                title: "Quality",
-                description:
-                  "Excellence in craftsmanship and materials is non-negotiable in every project we undertake.",
-              },
-              {
-                letter: "R",
-                title: "Reliability",
-                description: "Our clients can count on us to deliver on our promises, on time and within budget.",
-              },
-            ].map((value, index) => (
+            {values.map((value: any, index: number) => (
               <div
                 key={index}
                 className={`space-y-3 group hover:scale-105 transition-all duration-300 ${

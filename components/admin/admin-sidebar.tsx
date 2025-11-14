@@ -1,16 +1,14 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
   LayoutDashboard,
-  Image,
+  Image as ImageIcon,
   FileText,
   Building2,
-  Award,
-  MessageSquare,
-  Settings,
   LogOut,
   Menu,
   X,
@@ -22,16 +20,12 @@ import { toast } from 'sonner'
 
 const navItems = [
   { title: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  { title: 'Hero Section', href: '/admin/hero', icon: Image },
+  { title: 'Hero Section', href: '/admin/hero', icon: ImageIcon },
   { title: 'About', href: '/admin/about', icon: FileText },
-  { title: 'Services', href: '/admin/services', icon: Building2 },
   { title: 'Projects', href: '/admin/projects', icon: Building2 },
-  { title: 'Why Choose Us', href: '/admin/why-choose-us', icon: Award },
-  { title: 'Contact', href: '/admin/contact', icon: MessageSquare },
-  { title: 'Footer', href: '/admin/footer', icon: Settings },
 ]
 
-export default function AdminSidebar() {
+export default function AdminNavbar() {
   const pathname = usePathname()
   const router = useRouter()
   const [isMobileOpen, setIsMobileOpen] = useState(false)
@@ -42,42 +36,35 @@ export default function AdminSidebar() {
     if (error) {
       toast.error('Error logging out')
     } else {
-      router.push('/admin/login')
+      router.push('/login')
       router.refresh()
     }
   }
 
   return (
     <>
-      {/* Mobile Menu Button */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="bg-white"
-        >
-          {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </Button>
-      </div>
-
-      {/* Sidebar */}
-      <aside
-        className={cn(
-          'fixed top-0 left-0 h-full w-64 bg-white border-r border-slate-200 z-40 transition-transform duration-300',
-          'lg:translate-x-0',
-          isMobileOpen ? 'translate-x-0' : '-translate-x-full'
-        )}
-      >
-        <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="p-6 border-b border-slate-200">
-            <h1 className="text-xl font-bold text-slate-900">Sankalpa CMS</h1>
-            <p className="text-sm text-slate-600">Admin Panel</p>
+      {/* Top Navbar */}
+      <nav className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-slate-200 z-50 shadow-sm">
+        <div className="flex items-center justify-between h-full px-4 lg:px-6">
+          {/* Logo and Title */}
+          <div className="flex items-center space-x-3">
+            <Link href="/admin" className="flex items-center space-x-3">
+              <Image
+                src="/logo-transparent.png"
+                alt="Sankalpa Builders Logo"
+                width={40}
+                height={40}
+                className="object-contain"
+              />
+              <div>
+                <h1 className="text-lg font-bold text-slate-900">Sankalpa CMS</h1>
+                <p className="text-xs text-slate-600 hidden sm:block">Admin Panel</p>
+              </div>
+            </Link>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center space-x-1 flex-1 justify-center">
             {navItems.map((item) => {
               const Icon = item.icon
               const isActive = pathname === item.href
@@ -85,41 +72,88 @@ export default function AdminSidebar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  onClick={() => setIsMobileOpen(false)}
                   className={cn(
-                    'flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200',
+                    'flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 text-sm',
                     isActive
                       ? 'bg-[#C9A961]/10 text-[#C9A961] font-medium'
                       : 'text-slate-700 hover:bg-slate-100'
                   )}
                 >
-                  <Icon className="w-5 h-5" />
+                  <Icon className="w-4 h-4" />
                   <span>{item.title}</span>
                 </Link>
               )
             })}
-          </nav>
+          </div>
 
-          {/* Logout */}
-          <div className="p-4 border-t border-slate-200">
+          {/* Right Side - Logout and Mobile Menu */}
+          <div className="flex items-center space-x-2">
+            {/* Desktop Logout */}
             <Button
               variant="ghost"
               onClick={handleLogout}
-              className="w-full justify-start text-slate-700 hover:text-red-600 hover:bg-red-50"
+              className="hidden lg:flex items-center space-x-2 text-slate-700 hover:text-red-600 hover:bg-red-50"
             >
-              <LogOut className="w-5 h-5 mr-3" />
-              Logout
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
+            </Button>
+
+            {/* Mobile Menu Button */}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setIsMobileOpen(!isMobileOpen)}
+              className="lg:hidden"
+            >
+              {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </Button>
           </div>
         </div>
-      </aside>
+      </nav>
 
-      {/* Overlay for mobile */}
+      {/* Mobile Menu */}
       {isMobileOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-30"
-          onClick={() => setIsMobileOpen(false)}
-        />
+        <>
+          {/* Overlay */}
+          <div
+            className="lg:hidden fixed inset-0 bg-black/50 z-40"
+            onClick={() => setIsMobileOpen(false)}
+          />
+          {/* Mobile Menu Panel */}
+          <div className="lg:hidden fixed top-16 left-0 right-0 bg-white border-b border-slate-200 shadow-lg z-40 max-h-[calc(100vh-4rem)] overflow-y-auto">
+            <div className="p-4 space-y-2">
+              {navItems.map((item) => {
+                const Icon = item.icon
+                const isActive = pathname === item.href
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsMobileOpen(false)}
+                    className={cn(
+                      'flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200',
+                      isActive
+                        ? 'bg-[#C9A961]/10 text-[#C9A961] font-medium'
+                        : 'text-slate-700 hover:bg-slate-100'
+                    )}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span>{item.title}</span>
+                  </Link>
+                )
+              })}
+              {/* Mobile Logout */}
+              <Button
+                variant="ghost"
+                onClick={handleLogout}
+                className="w-full justify-start text-slate-700 hover:text-red-600 hover:bg-red-50 mt-4"
+              >
+                <LogOut className="w-5 h-5 mr-3" />
+                Logout
+              </Button>
+            </div>
+          </div>
+        </>
       )}
     </>
   )

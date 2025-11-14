@@ -22,6 +22,7 @@ export default function ScrollMarquee() {
   const marqueeRef = useRef<HTMLDivElement>(null)
   const [scrollY, setScrollY] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
   const marqueeItems = [
     { text: "CPWD & PWD Enlisted", icon: Building2 },
@@ -41,6 +42,7 @@ export default function ScrollMarquee() {
   ]
 
   useEffect(() => {
+    setIsMounted(true)
     const handleScroll = () => {
       setScrollY(window.scrollY)
     }
@@ -50,6 +52,7 @@ export default function ScrollMarquee() {
     }
 
     handleResize()
+    handleScroll()
 
     window.addEventListener("scroll", handleScroll, { passive: true })
     window.addEventListener("resize", handleResize, { passive: true })
@@ -60,7 +63,7 @@ export default function ScrollMarquee() {
     }
   }, [])
 
-  const animationDuration = isMobile ? "20s" : "40s"
+  const animationDuration = isMounted && isMobile ? "20s" : "40s"
 
   return (
     <div className="relative overflow-hidden bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 py-3 border-y border-[#C9A961]/20">

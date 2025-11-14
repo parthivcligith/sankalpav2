@@ -35,6 +35,9 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // Set pathname header for use in layouts
+  supabaseResponse.headers.set('x-pathname', request.nextUrl.pathname)
+
   if (
     !user &&
     !request.nextUrl.pathname.startsWith('/login') &&
@@ -42,7 +45,7 @@ export async function updateSession(request: NextRequest) {
   ) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone()
-    url.pathname = '/admin/login'
+    url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
