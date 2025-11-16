@@ -21,6 +21,20 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
 
+    // Check if environment variables are set
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseKey) {
+      toast.error('Configuration error: Missing Supabase credentials. Please check your environment variables.')
+      console.error('Missing environment variables:', {
+        hasUrl: !!supabaseUrl,
+        hasKey: !!supabaseKey,
+      })
+      setLoading(false)
+      return
+    }
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -28,7 +42,25 @@ export default function LoginPage() {
       })
 
       if (error) {
-        toast.error('Invalid credentials. Please try again.')
+        // Show specific error messages
+        let errorMessage = 'Login failed. Please try again.'
+        
+        if (error.message.includes('Invalid login credentials')) {
+          errorMessage = 'Invalid email or password. Please check your credentials.'
+        } else if (error.message.includes('Email not confirmed')) {
+          errorMessage = 'Please confirm your email address before logging in. Check your inbox for a confirmation email.'
+        } else if (error.message.includes('400')) {
+          errorMessage = 'Bad request. Please verify your Supabase configuration and credentials.'
+        } else {
+          errorMessage = error.message || errorMessage
+        }
+        
+        toast.error(errorMessage)
+        console.error('Login error:', {
+          message: error.message,
+          status: error.status,
+          name: error.name,
+        })
         return
       }
 
@@ -37,8 +69,10 @@ export default function LoginPage() {
         router.push('/admin')
         router.refresh()
       }
-    } catch (error) {
-      toast.error('An error occurred. Please try again.')
+    } catch (error: any) {
+      const errorMessage = error?.message || 'An unexpected error occurred. Please try again.'
+      toast.error(errorMessage)
+      console.error('Unexpected login error:', error)
     } finally {
       setLoading(false)
     }
